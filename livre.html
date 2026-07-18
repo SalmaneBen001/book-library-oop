@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books Management</title>
+    <link rel="stylesheet" href="livre.css">
+</head>
+
+<body>
+    <h2>Ajouter des livres à votre bibliothèque</h2>
+    <form action="" id="livre-form">
+        <fieldset>
+            <legend>Nouveau livre</legend>
+            <label for="titre">Titre :</label>
+            <input type="text" id="titre">
+            <label for="genre">Genre :</label>
+            <input type="text" id="genre">
+            <label for="auteur">Auteur :</label>
+            <input type="text" id="auteur">
+            <input type="submit" value="Ajouter" id="ajouter">
+        </fieldset>
+    </form>
+    <div class="header-container">
+        <h2>Liste des livres :</h2>
+        <button id="btn-reinitialiser" class="btn-supprimer">Vider toute la bibliothèque ⚠️</button>
+    </div>
+    <div class="filter-container">
+        <span>Filtrer :</span>
+        <button class="btn-filter active" id="btn-filtrer-tout">Tous les livres</button>
+        <button class="btn-filter" id="btn-filtrer-non-lus">Livres à lire</button>
+    </div>
+    <table id="books-list">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Genre</th>
+                <th>Auteur</th>
+                <th>Statut</th>
+                <th>Date de lecture</th>
+                <th>Note & Avis</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <h2>Avancement dans la lecture :</h2>
+    <table id="reading-advancement">
+        <thead>
+            <tr>
+                <th>Nombre de livres lus</th>
+                <th>Nombre de livres restants</th>
+                <th>Livre suivant</th>
+                <th>Livre en cours</th>
+                <th>Dernier livre</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        // ───────────────────── Programmation Orienté Objet ─────────────────────
+
+        // ───────────────────── Avec les classes ─────────────────────
+
+        /* classe : Livre */
+        class Livre {
+            constructor(titre, genre, auteur, lu = false, dateDebutLecture = null, dateFinLecture = null, note = null, avis = null) {
+                this.titre = titre;
+                this.genre = genre;
+                this.auteur = auteur;
+                this.lu = lu;
+                this.dateDebutLecture = dateDebutLecture ? new Date(dateDebutLecture) : null;
+                this.dateFinLecture = dateFinLecture ? new Date(dateFinLecture) : null;
+                this.note = note;
+                this.avis = avis;
+            }
+        }
+        /* Classe : Liste des livres */
+        class ListeLivres {
+            constructor() {
+                this.nbrLivresLus = 0;
+                this.nbrLivresNonLus = 0;
+                this.LivreSuivant = null;
+                this.LivreEnCours = null;
+                this.DernierLivre = null;
+                this.TableauLivres = [];
+            }
+            /* Méthode : Ajouter un livre à la liste */
+            ajouter(livre) {
+                this.TableauLivres.push(livre);
+                if (livre.lu === true) {
+                    this.nbrLivresLus += 1;
+                }
+                else {
+                    this.nbrLivresNonLus += 1;
+                    if (!this.LivreEnCours) {
+                        this.LivreEnCours = livre;
+                        this.LivreEnCours.dateDebutLecture = new Date();
+                    }
+                    else if (!this.LivreSuivant) {
+                        this.LivreSuivant = livre;
+                    }
+                }
+                this.stockerDonnees();
+                this.afficherLivres();
+                this.afficherAvancement();
+                return this.TableauLivres;
+            }
+            /* Méthode : Terminer le livre en cours de lecture avec la màj des données */
+            terminerLivreEnCours() {
+                if (!this.LivreEnCours) {
+                    console.warn("Aucun livre n'est en cours de lecture !");
+                    return;
+                }
+                this.LivreEnCours.lu = true;
+                this.LivreEnCours.dateFinLecture = new Date();
+                this.DernierLivre = this.LivreEnCours;
+                this.nbrLivresLus += 1;
+                this.nbrLivresNonLus -= 1;
+                const indexActuel = this.TableauLivres.indexOf(this.LivreEnCours);
+                this.LivreEnCours = this.LivreSuivant;
+                if (this.LivreEnCours) {
+                    this.LivreEnCours.dateDebutLecture = new Date();
+                }
+                this.LivreSuivant = null;
+                const indexSuivant = indexActuel + 2;
+                if (indexSuivant < this.TableauLivres.length) {
+                    this.LivreSuivant = this.TableauLivres[indexSuivant];
+                } else {
+                    this.LivreSuivant = null;
+                }
+                this.stockerDonnees();
+                this.afficherLivres();
+                this.afficherAvancement();
+            }
+            /* Méthode : Stocker les données dans localStorage */
+            stockerDonnees() {
+                localStorage.setItem("maBibliotheque", JSON.stringify(this.TableauLivres));
+                console.log("Données sauvegardées avec succès !");
+            }
+            /* Méthode : Charger les données depuis localStorage */
+            chargerDonnees() {
+                const donneesSauvegardees = localStorage.getItem("maBibliotheque");
+                if (!donneesSauvegardees) {
+                    this.TableauLivres = [];
+                    return;
+                }
+                const objetsBruts = JSON.parse(donneesSauvegardees);
+                this.TableauLivres = objetsBruts.map(obj => {
+                    return new Livre(obj.titre, obj.genre, obj.auteur, obj.lu, obj.dateDebutLecture, obj.dateFinLecture, obj.note, obj.avis);
+                });
+                this.nbrLivresLus = 0;
+                this.nbrLivresNonLus = 0;
+                this.LivreEnCours = null;
+                this.LivreSuivant = null;
+                this.DernierLivre = null;
+                this.TableauLivres.forEach(livre => {
+                    if (livre.lu) {
+                        this.nbrLivresLus += 1;
+                        this.DernierLivre = livre;
+                    } else {
+                        this.nbrLivresNonLus += 1;
+                        if (!this.LivreEnCours) {
+                            this.LivreEnCours = livre;
+                        } else if (!this.LivreSuivant) {
+                            this.LivreSuivant = livre;
+                        }
+                    }
+                });
+                this.afficherLivres();
+                this.afficherAvancement();
+            }
+            /* Méthode : Supprimer les données téléchargées au localStorage */
+            supprimerBibliotheque() {
+                this.TableauLivres = [];
+                this.nbrLivresLus = 0;
+                this.nbrLivresNonLus = 0;
+                this.LivreEnCours = null;
+                this.LivreSuivant = null;
+                this.DernierLivre = null;
+                localStorage.removeItem("maBibliotheque");
+                this.afficherLivres();
+                this.afficherAvancement();
+            }
+            /* Méthode : Affichage des livres du liste avec leurs infos */
+            afficherLivres() {
+                const tbody = document.querySelector("#books-list tbody");
+                tbody.innerHTML = "";
+                let tab = this.TableauLivres;
+                if (filtreActuel == "non-lus") {
+                    tab = this.TableauLivres.filter(livre => livre.lu === false);
+                }
+                tab.forEach((livre) => {
+                    let row = document.createElement('tr');
+                    let statut = "";
+                    let evaluation = `<span class="badge-attente">À NOTER</span>`;
+
+                    if (livre === this.LivreEnCours) {
+                        statut = `<span class="status-en-cours">En cours 📖</span>`;
+                    } else if (livre === this.LivreSuivant) {
+                        statut = `<span class="status-suivant">Prochain ⏭️</span>`;
+                    } else if (livre.lu) {
+                        const nbJours = getDaysDiff(livre.dateDebutLecture, livre.dateFinLecture);
+                        const duree = nbJours === 0 ? "moins d'un jour" : `${nbJours} jour(s)`;
+                        statut = `<span class="status-lu">Lu en ${duree}</span><br>`;
+                        const etoiles = (typeof livre.note === 'number') ? "⭐".repeat(livre.note) : "Pas de note";
+                        evaluation = `
+                            <div class="evaluation-container">
+                                <span class="evaluation-stars">${etoiles}</span><br>
+                                <span class="evaluation-review" title="${livre.avis}">
+                                    "${livre.avis.substring(0, 25)}${livre.avis.length > 25 ? '...' : ''}"
+                                </span>
+                            </div>
+                        `;
+                    } else {
+                        statut = `<span class="status-attente">Pas encore lu</span>`;
+                    }
+                    row.innerHTML = `
+                        <td>${livre.titre}</td>
+                        <td>${livre.genre}</td>
+                        <td>${livre.auteur}</td>
+                        <td>${statut}</td>
+                        <td>${livre.dateFinLecture ? livre.dateFinLecture.toLocaleDateString() : "Pas encore lu"}</td>
+                        <td>${evaluation}</td>
+                        <td>
+                            <button class="btn-lu">Marquer comme lu</button>
+                            <button class="btn-supprimer">Retirer du bibliothèque</button>
+                        </td>
+                    `;
+                    row.querySelector(".btn-lu").addEventListener("click", () => {
+                        marquerCommeLu(this.TableauLivres.indexOf(livre))
+                    });
+                    row.querySelector(".btn-supprimer").addEventListener("click", () => {
+                        supprimerLivre(this.TableauLivres.indexOf(livre))
+                    });
+                    tbody.appendChild(row);
+                });
+            }
+            /* Méthode : Affichage de l'avancement dans la lecture */
+            afficherAvancement() {
+                const tbody = document.querySelector("#reading-advancement tbody");
+                tbody.innerHTML = "";
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${this.nbrLivresLus}</td>
+                    <td>${this.nbrLivresNonLus}</td>
+                    <td>${this.LivreSuivant ? this.LivreSuivant.titre : "Aucun livre prévu"}</td>
+                    <td>${this.LivreEnCours ? this.LivreEnCours.titre : "Aucun livre en cours"}</td>
+                    <td>${this.DernierLivre ? this.DernierLivre.titre : "Aucun livre terminé"}</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // ───────────────────── Avec Fonction constructrice ─────────────────────
+
+        /* function Livre(titre, genre, auteur, lu = false, dateDebutLecture = null, dateFinLecture = null, note = null, avis = null) {
+            this.titre = titre;
+            this.genre = genre;
+            this.auteur = auteur;
+            this.lu = lu;
+            this.dateDebutLecture = dateDebutLecture ? new Date(dateDebutLecture) : null;
+            this.dateFinLecture = dateFinLecture ? new Date(dateFinLecture) : null;
+            this.note = note;
+            this.avis = avis;
+        }
+        function ListeLivres() {
+            this.nbrLivresLus = 0;
+            this.nbrLivresNonLus = 0;
+            this.LivreSuivant = null;
+            this.LivreEnCours = null;
+            this.DernierLivre = null;
+            this.TableauLivres = [];
+        }
+        ListeLivres.prototype.ajouter = function (livre) {
+            this.TableauLivres.push(livre);
+            if (livre.lu === true) {
+                this.nbrLivresLus += 1;
+            }
+            else {
+                this.nbrLivresNonLus += 1;
+                if (!this.LivreEnCours) {
+                    this.LivreEnCours = livre;
+                    this.LivreEnCours.dateDebutLecture = new Date();
+                }
+                else if (!this.LivreSuivant) {
+                    this.LivreSuivant = livre;
+                }
+            }
+            this.stockerDonnees();
+            this.afficherLivres();
+            this.afficherAvancement();
+            return this.TableauLivres;
+        }
+        ListeLivres.prototype.terminerLivreEnCours = function () {
+            if (!this.LivreEnCours) {
+                console.warn("Aucun livre n'est en cours de lecture !");
+                return;
+            }
+            this.LivreEnCours.lu = true;
+            this.LivreEnCours.dateFinLecture = new Date();
+            this.DernierLivre = this.LivreEnCours;
+            this.nbrLivresLus += 1;
+            this.nbrLivresNonLus -= 1;
+            const indexActuel = this.TableauLivres.indexOf(this.LivreEnCours);
+            this.LivreEnCours = this.LivreSuivant;
+            if (this.LivreEnCours) {
+                this.LivreEnCours.dateDebutLecture = new Date();
+            }
+            this.LivreSuivant = null;
+            const indexSuivant = indexActuel + 2;
+            if (indexSuivant < this.TableauLivres.length) {
+                this.LivreSuivant = this.TableauLivres[indexSuivant];
+            } else {
+                this.LivreSuivant = null;
+            }
+            this.stockerDonnees();
+            this.afficherLivres();
+            this.afficherAvancement();
+        }
+        ListeLivres.prototype.stockerDonnees = function () {
+            localStorage.setItem("maBibliotheque", JSON.stringify(this.TableauLivres));
+            console.log("Données sauvegardées avec succès !");
+        }
+        ListeLivres.prototype.chargerDonnees = function () {
+            const donneesSauvegardees = localStorage.getItem("maBibliotheque");
+            if (!donneesSauvegardees) {
+                this.TableauLivres = [];
+                return;
+            }
+            const objetsBruts = JSON.parse(donneesSauvegardees);
+            this.TableauLivres = objetsBruts.map(obj => {
+                return new Livre(obj.titre, obj.genre, obj.auteur, obj.lu, obj.dateDebutLecture, obj.dateFinLecture, obj.note, obj.avis);
+            });
+            this.nbrLivresLus = 0;
+            this.nbrLivresNonLus = 0;
+            this.LivreEnCours = null;
+            this.LivreSuivant = null;
+            this.DernierLivre = null;
+            this.TableauLivres.forEach(livre => {
+                if (livre.lu) {
+                    this.nbrLivresLus += 1;
+                    this.DernierLivre = livre;
+                } else {
+                    this.nbrLivresNonLus += 1;
+                    if (!this.LivreEnCours) {
+                        this.LivreEnCours = livre;
+                    } else if (!this.LivreSuivant) {
+                        this.LivreSuivant = livre;
+                    }
+                }
+            });
+            this.afficherLivres();
+            this.afficherAvancement();
+        };
+        ListeLivres.prototype.supprimerBibliotheque = function () {
+            this.TableauLivres = [];
+            this.nbrLivresLus = 0;
+            this.nbrLivresNonLus = 0;
+            this.LivreEnCours = null;
+            this.LivreSuivant = null;
+            this.DernierLivre = null;
+            localStorage.removeItem("maBibliotheque");
+            this.afficherLivres();
+            this.afficherAvancement();
+        };
+        ListeLivres.prototype.afficherLivres = function () {
+            const tbody = document.querySelector("#books-list tbody");
+            tbody.innerHTML = "";
+            let tab = this.TableauLivres;
+            if (filtreActuel == "non-lus") {
+                tab = this.TableauLivres.filter(livre => livre.lu === false);
+            }
+            tab.forEach((livre) => {
+                let row = document.createElement('tr');
+                let statut = "";
+                let evaluation = "";
+                if (livre === this.LivreEnCours) {
+                    statut = `<span class="status-en-cours">En cours 📖</span>`;
+                } else if (livre === this.LivreSuivant) {
+                    statut = `<span class="status-suivant">Prochain ⏭️</span>`;
+                } else if (livre.lu) {
+                    statut = `<span class="status-lu">Lu en ${getDaysDiff(livre.dateDebutLecture, livre.dateFinLecture)} jour(s)</span><br>`;
+                    const etoiles = (typeof livre.note === 'number') ? "⭐".repeat(livre.note) : "Pas de note";
+                    evaluation = `<span class="evaluation">${livre.avis} | ${etoiles}</span>`;
+                } else {
+                    statut = `<span class="status-attente">Pas encore lu</span>`;
+                }
+                row.innerHTML = `
+                        <td>${livre.titre}</td>
+                        <td>${livre.genre}</td>
+                        <td>${livre.auteur}</td>
+                        <td>${statut}${evaluation}</td>
+                        <td>${livre.dateFinLecture ? livre.dateFinLecture.toLocaleDateString() : "Pas encore lu"}</td>
+                        <td>
+                            <button class="btn-lu">Marquer comme lu</button>
+                            <button class="btn-supprimer">Retirer du bibliothèque</button>
+                        </td>
+                    `;
+                row.querySelector(".btn-lu").addEventListener("click", () => {
+                    marquerCommeLu(this.TableauLivres.indexOf(livre))
+                });
+                row.querySelector(".btn-supprimer").addEventListener("click", () => {
+                    supprimerLivre(this.TableauLivres.indexOf(livre))
+                });
+                tbody.appendChild(row);
+            });
+        }
+        ListeLivres.prototype.afficherAvancement = function () {
+            const tbody = document.querySelector("#reading-advancement tbody");
+            tbody.innerHTML = "";
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${this.nbrLivresLus}</td>
+                <td>${this.nbrLivresNonLus}</td>
+                <td>${this.LivreSuivant ? this.LivreSuivant.titre : "Aucun livre prévu"}</td>
+                <td>${this.LivreEnCours ? this.LivreEnCours.titre : "Aucun livre en cours"}</td>
+                <td>${this.DernierLivre ? this.DernierLivre.titre : "Aucun livre terminé"}</td>
+            `;
+            tbody.appendChild(row);
+        } */
+
+        // ───────────────────── BLOC DES FONCTIONS GLOBALES  ─────────────────────
+
+        /* Récupération des infromations du livre depuis le formulaire et création d'un nouveau livre */
+        function creerLivre() {
+            const titre = document.getElementById("titre").value.trim();
+            const genre = document.getElementById("genre").value.trim();
+            const auteur = document.getElementById("auteur").value.trim();
+            if (titre == "" || genre == "" || auteur == "") {
+                alert("Veulliez remplir tous les champs !");
+                return null;
+            }
+            return new Livre(titre, genre, auteur);
+        }
+        /* Changement du statut d'un livre terminé à lu */
+        function marquerCommeLu(index) {
+            const livreSelectionne = liste_livres.TableauLivres[index];
+            if (livreSelectionne !== liste_livres.LivreEnCours) {
+                if (livreSelectionne.lu) {
+                    alert("Vous avez déjà terminé ce livre !");
+                } else {
+                    alert("Vous devez d'abord terminer le livre actuellement 'En cours' de lecture !");
+                }
+                return;
+            }
+            let noteSaisie;
+            while (true) {
+                const saisie = prompt("Donnez une note à ce livre (entre 0 et 5) :");
+                if (saisie === null) return;
+                noteSaisie = parseInt(saisie, 10);
+                if (!isNaN(noteSaisie) && noteSaisie >= 0 && noteSaisie <= 5) {
+                    break;
+                }
+            }
+            let avisDonne;
+            while (true) {
+                avisDonne = prompt("Partagez votre avis sur ce livre :");
+                if (avisDonne === null) return;
+                if (avisDonne.trim() !== "") {
+                    break;
+                }
+            }
+            livreSelectionne.note = noteSaisie;
+            livreSelectionne.avis = avisDonne.trim();
+            liste_livres.terminerLivreEnCours();
+        }
+        /* Retrait d'un livre du bibliothèque */
+        function supprimerLivre(index) {
+            const tab = liste_livres.TableauLivres;
+            const livreCible = tab[index];
+            if (!confirm(`Voulez-vous vraiment retirer "${livreCible.titre}" ?`)) return;
+            tab.splice(index, 1);
+            liste_livres.nbrLivresLus = 0;
+            liste_livres.nbrLivresNonLus = 0;
+            liste_livres.LivreEnCours = null;
+            liste_livres.LivreSuivant = null;
+            liste_livres.DernierLivre = null;
+            tab.forEach(livre => {
+                if (livre.lu) {
+                    liste_livres.nbrLivresLus += 1;
+                    liste_livres.DernierLivre = livre;
+                } else {
+                    liste_livres.nbrLivresNonLus += 1;
+                    if (!liste_livres.LivreEnCours) {
+                        liste_livres.LivreEnCours = livre;
+                        if (!liste_livres.LivreEnCours.dateDebutLecture) {
+                            liste_livres.LivreEnCours.dateDebutLecture = new Date();
+                        }
+                    } else if (!liste_livres.LivreSuivant) {
+                        liste_livres.LivreSuivant = livre;
+                    }
+                }
+            });
+            liste_livres.stockerDonnees();
+            liste_livres.afficherLivres();
+            liste_livres.afficherAvancement();
+        }
+        /* Fonction pour calculer la différence entre les dates */
+        function getDaysDiff(date1, date2) {
+            if (!date1 || !date2 || !(date1 instanceof Date) || !(date2 instanceof Date)) {
+                return 0;
+            }
+            const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+            const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+            const msPerDay = 1000 * 60 * 60 * 24;
+            return Math.floor(Math.abs(utc2 - utc1) / msPerDay);
+        }
+
+        // ───────────────────── BLOC D'INITIALISATION ─────────────────────
+
+        /* Variable d'état de filtre global */
+        let filtreActuel = "tous";
+        /* Liste globale des livres */
+        let liste_livres = new ListeLivres();
+        /* Déclencher le chargement des données */
+        document.addEventListener("DOMContentLoaded", () => {
+            liste_livres.chargerDonnees();
+        });
+        /* Création d'un nouveau livre depuis le formulaire */
+        const form = document.getElementById("livre-form");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nouveauLivre = creerLivre();
+            if (nouveauLivre) {
+                liste_livres.ajouter(nouveauLivre);
+                form.reset();
+            }
+        });
+        /* Les deux boutons du filtrage */
+        const btnTout = document.getElementById("btn-filtrer-tout");
+        const btnNonLus = document.getElementById("btn-filtrer-non-lus");
+        /* Événement du bouton filtrer tous */
+        btnTout.addEventListener("click", () => {
+            filtreActuel = "tous";
+            btnTout.classList.add("active");
+            btnNonLus.classList.remove("active");
+            liste_livres.afficherLivres();
+        });
+
+        /* Événement du bouton filtrer non lus */
+        btnNonLus.addEventListener("click", () => {
+            filtreActuel = "non-lus";
+            btnNonLus.classList.add("active");
+            btnTout.classList.remove("active");
+            liste_livres.afficherLivres();
+        });
+        /* Événement du bouton pour vider toute la bibliothèque */
+        document.getElementById("btn-reinitialiser").addEventListener("click", () => {
+            if (confirm("ATTENTION : Voulez-vous vraiment supprimer TOUS les livres et réinitialiser vos statistiques ? Cette action est irréversible.")) {
+                liste_livres.supprimerBibliotheque();
+            }
+        });
+    </script>
+</body>
+
+</html>

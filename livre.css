@@ -1,0 +1,347 @@
+/* --- STYLE GLOBAL & SQUELETTE (FLEXBOX CENTRÉ) --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #2c3e50;
+    padding: 40px 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    color: #34495e;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    margin: 40px 0 20px 0;
+    width: 100%;
+    max-width: 1050px;
+    box-sizing: border-box;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1050px;
+    margin: 40px 0 20px 0;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    box-sizing: border-box;
+}
+
+.header-container h2 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+form,
+.filter-container,
+table {
+    width: 100%;
+    max-width: 1050px;
+    box-sizing: border-box;
+}
+
+/* --- STRUCTURE DES TABLEAUX --- */
+table {
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: none;
+}
+
+th {
+    background-color: #4a5568;
+    color: #ffffff;
+    text-align: left;
+    padding: 14px 16px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+}
+
+td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #edf2f7;
+    color: #4a5568;
+    font-size: 0.95rem;
+}
+
+tbody tr:hover {
+    background-color: #f7fafc;
+    transition: background-color 0.2s ease;
+}
+
+/* --- LARGEURS DE CELLULES DU PREMIER TABLEAU --- */
+#books-list th:nth-child(1),
+#books-list td:nth-child(1) {
+    min-width: 180px;
+}
+
+#books-list th:nth-child(3),
+#books-list td:nth-child(3) {
+    min-width: 140px;
+}
+
+#books-list th:nth-child(4),
+#books-list td:nth-child(4) {
+    min-width: 180px;
+}
+
+#books-list th:nth-child(6),
+#books-list td:nth-child(6) {
+    min-width: 190px;
+}
+
+#books-list th:last-child {
+    text-align: left;
+    width: 290px;
+}
+
+/* --- OPTIMISATION DU DEUXIÈME TABLEAU (AVANCEMENT) --- */
+#reading-advancement th,
+#reading-advancement td {
+    text-align: center;
+    width: 20%;
+}
+
+#reading-advancement td:nth-child(1),
+#reading-advancement td:nth-child(2) {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+#reading-advancement td:nth-child(1) {
+    color: #2ecc71;
+}
+
+#reading-advancement td:nth-child(2) {
+    color: #e67e22;
+}
+
+/* --- STATUTS VISUELS --- */
+.status-lu {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.status-en-cours {
+    color: #2980b9;
+    font-weight: 600;
+    background-color: #ebf5fb;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.status-suivant {
+    color: #8e44ad;
+    font-style: italic;
+}
+
+.status-attente {
+    color: #7f8c8d;
+    font-style: italic;
+}
+.evaluation-container {
+    line-height: 1.4;
+}
+
+.evaluation-stars {
+    color: #f1c40f;
+    font-weight: bold;
+    font-size: 0.8rem;
+    background-color: #fef9e7;
+    border: 1px solid #fdebd0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+
+.evaluation-review {
+    font-style: italic;
+    color: #7f8c8d;
+    font-size: 0.85rem;
+}
+
+.badge-attente {
+    color: #64748b;
+    background-color: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* --- FORMULAIRE D'AJOUT --- */
+form {
+    margin-bottom: 30px;
+}
+
+fieldset {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+legend {
+    font-weight: 600;
+    color: #4a5568;
+    padding: 0 10px;
+    font-size: 1.1rem;
+}
+
+label {
+    display: inline-block;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 6px;
+    margin-top: 12px;
+}
+
+label[for="titre"] {
+    margin-top: 0;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #4a5568;
+    font-family: inherit;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #4a5568;
+    box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.15);
+}
+
+input[type="submit"] {
+    background-color: #2ecc71;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    width: auto;
+    transition: background-color 0.2s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #27ae60;
+}
+
+/* --- BOUTONS D'ACTIONS DES LIGNES --- */
+#books-list td:last-child {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#books-list td button {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#books-list td button:active {
+    transform: scale(0.96);
+}
+
+.btn-lu {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+.btn-lu:hover {
+    background-color: #2980b9;
+}
+
+.btn-supprimer {
+    background-color: #e74c3c;
+    color: #ffffff;
+}
+
+.btn-supprimer:hover {
+    background-color: #c0392b;
+}
+
+/* --- ZONE DE FILTRAGE --- */
+.filter-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.btn-filter {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-filter:hover {
+    background-color: #cbd5e1;
+    color: #2d3748;
+}
+
+.btn-filter.active {
+    background-color: #4a5568;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* --- STYLE DU BOUTON DE RÉINITIALISATION --- */
+#btn-reinitialiser {
+    background-color: #e74c3c;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 6px rgba(231, 76, 60, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+#btn-reinitialiser:hover {
+    background-color: #c0392b;
+}
+
+#btn-reinitialiser:active {
+    transform: scale(0.97);
+}
